@@ -17,6 +17,8 @@
 		93D230321C86D7F700434F6D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 93D230301C86D7F700434F6D /* LaunchScreen.storyboard */; };
 		93D2303D1C86D7F700434F6D /* QiniuDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 93D2303C1C86D7F700434F6D /* QiniuDemoTests.m */; };
 		93D230481C86D7F800434F6D /* QiniuDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 93D230471C86D7F800434F6D /* QiniuDemoUITests.m */; };
+		CC360B04218AEE8300FEF504 /* IMG_4130.m4v in Resources */ = {isa = PBXBuildFile; fileRef = CC360B03218AEE8300FEF504 /* IMG_4130.m4v */; };
+		CC360B07218AEEA200FEF504 /* QNTempFile.m in Sources */ = {isa = PBXBuildFile; fileRef = CC360B05218AEEA200FEF504 /* QNTempFile.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +59,9 @@
 		93D230471C86D7F800434F6D /* QiniuDemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QiniuDemoUITests.m; sourceTree = "<group>"; };
 		93D230491C86D7F800434F6D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9942BD34EF64A3AD88897A33 /* Pods-QiniuDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QiniuDemoTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-QiniuDemoTests/Pods-QiniuDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
+		CC360B03218AEE8300FEF504 /* IMG_4130.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = IMG_4130.m4v; sourceTree = "<group>"; };
+		CC360B05218AEEA200FEF504 /* QNTempFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QNTempFile.m; sourceTree = "<group>"; };
+		CC360B06218AEEA200FEF504 /* QNTempFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QNTempFile.h; sourceTree = "<group>"; };
 		E7D8BA8B588B4620EDD9AECA /* Pods-QiniuDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QiniuDemoTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-QiniuDemoTests/Pods-QiniuDemoTests.release.xcconfig"; sourceTree = "<group>"; };
 		F90FEC5E40BE695E8AA6A8A7 /* Pods-QiniuDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QiniuDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-QiniuDemo/Pods-QiniuDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -133,6 +138,9 @@
 		93D230211C86D7F700434F6D /* QiniuDemo */ = {
 			isa = PBXGroup;
 			children = (
+				CC360B03218AEE8300FEF504 /* IMG_4130.m4v */,
+				CC360B06218AEEA200FEF504 /* QNTempFile.h */,
+				CC360B05218AEEA200FEF504 /* QNTempFile.m */,
 				93D230251C86D7F700434F6D /* AppDelegate.h */,
 				93D230261C86D7F700434F6D /* AppDelegate.m */,
 				93D230281C86D7F700434F6D /* ViewController.h */,
@@ -183,8 +191,6 @@
 				93D2301B1C86D7F700434F6D /* Sources */,
 				93D2301C1C86D7F700434F6D /* Frameworks */,
 				93D2301D1C86D7F700434F6D /* Resources */,
-				E7747219847A629D5312382A /* [CP] Embed Pods Frameworks */,
-				200D9CECB60715C9746F9444 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -203,8 +209,6 @@
 				93D230341C86D7F700434F6D /* Sources */,
 				93D230351C86D7F700434F6D /* Frameworks */,
 				93D230361C86D7F700434F6D /* Resources */,
-				29A428BC542135B14A72E77B /* [CP] Embed Pods Frameworks */,
-				ABE36606520E0BC28F0FB079 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -245,7 +249,7 @@
 				TargetAttributes = {
 					93D2301E1C86D7F700434F6D = {
 						CreatedOnToolsVersion = 7.2;
-						DevelopmentTeam = W2TP34G2MM;
+						DevelopmentTeam = GDFHW66V92;
 					};
 					93D230371C86D7F700434F6D = {
 						CreatedOnToolsVersion = 7.2;
@@ -283,6 +287,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				93D230321C86D7F700434F6D /* LaunchScreen.storyboard in Resources */,
+				CC360B04218AEE8300FEF504 /* IMG_4130.m4v in Resources */,
 				93D2302F1C86D7F700434F6D /* Assets.xcassets in Resources */,
 				93D2302D1C86D7F700434F6D /* Main.storyboard in Resources */,
 			);
@@ -305,64 +310,22 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		200D9CECB60715C9746F9444 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QiniuDemo/Pods-QiniuDemo-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		29A428BC542135B14A72E77B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QiniuDemoTests/Pods-QiniuDemoTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		7BC7BFB54A15F4E854C3D84E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-QiniuDemoTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		ABE36606520E0BC28F0FB079 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QiniuDemoTests/Pods-QiniuDemoTests-resources.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D0F6ADCA764EF90D58C53A3C /* [CP] Check Pods Manifest.lock */ = {
@@ -371,28 +334,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-QiniuDemo-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		E7747219847A629D5312382A /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QiniuDemo/Pods-QiniuDemo-frameworks.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -402,6 +353,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC360B07218AEEA200FEF504 /* QNTempFile.m in Sources */,
 				93D2302A1C86D7F700434F6D /* ViewController.m in Sources */,
 				93D230271C86D7F700434F6D /* AppDelegate.m in Sources */,
 				93D230241C86D7F700434F6D /* main.m in Sources */,
@@ -546,11 +498,11 @@
 			baseConfigurationReference = F90FEC5E40BE695E8AA6A8A7 /* Pods-QiniuDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = W2TP34G2MM;
+				DEVELOPMENT_TEAM = GDFHW66V92;
 				INFOPLIST_FILE = QiniuDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.qiniu.QiniuDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qiniu.lalala.QiniuDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -560,11 +512,11 @@
 			baseConfigurationReference = 24EE530BBB100BED89B08A3D /* Pods-QiniuDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = W2TP34G2MM;
+				DEVELOPMENT_TEAM = GDFHW66V92;
 				INFOPLIST_FILE = QiniuDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.qiniu.QiniuDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qiniu.lalala.QiniuDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

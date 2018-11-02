@@ -7,13 +7,17 @@
 //
 
 #import "ViewController.h"
-#import "AFNetworking.h"
-#import "UIImageView+AFNetworking.h"
+#import "QNTempFile.h"
+
+NSString *token = @"Oh5V7tcC3YiXDpQaXf6GMn_dIOVzQBnW9j4UZePS:btJb8QToiRyCVljgNL_FD7jc4uI=:eyJzY29wZSI6InB1cnN1ZSIsImRlYWRsaW5lIjoxNTQxMTQ3MDI5fQo=";
 
 @interface ViewController () <UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
 @property (nonatomic, strong) NSString *token;
 @property (nonatomic, strong) UIImage *pickImage;
+@property (nonatomic, strong) NSMutableArray *urlArray;
+
+@property (nonatomic, assign) int fileSize;
 
 @end
 
@@ -23,40 +27,108 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     self.title = @"七牛云上传";
+    self.urlArray = [NSMutableArray array];
+    self.fileSize = 20 * 1024;
 }
 
 - (IBAction)chooseAction:(id)sender {
-    [self gotoImageLibrary];
-}
-
-- (IBAction)uploadAction:(id)sender {
-    if (self.pickImage == nil) {
-        UIAlertView *alert = [[UIAlertView alloc]
-                initWithTitle:@"还未选择图片"
-                      message:@""
-                     delegate:nil
-            cancelButtonTitle:@"OK!"
-            otherButtonTitles:nil];
-        [alert show];
-    } else {
-        [self uploadImageToQNFilePath:[self getImagePath:self.pickImage]];
+    //    [self gotoImageLibrary];
+    
+    for (NSInteger i = 0; i < 1; i++) {
+        [self.urlArray addObject:[QNTempFile createTempfileWithSize:self.fileSize * 1024]];
+        //        [self.urlArray addObject:[[NSBundle mainBundle] URLForResource:@"IMG_4130" withExtension:@"m4v"]];
     }
 }
 
-- (void)uploadImageToQNFilePath:(NSString *)filePath {
-    self.token = @"你的token";
+- (IBAction)uploadAction:(id)sender {
+    if (self.urlArray.count == 0) {
+        UIAlertView *alert = [[UIAlertView alloc]
+                              initWithTitle:@"还未选择图片"
+                              message:@""
+                              delegate:nil
+                              cancelButtonTitle:@"OK!"
+                              otherButtonTitles:nil];
+        [alert show];
+    } else {
+        for (NSURL *fileUrl  in self.urlArray) {
+            [self uploadWithPiece:fileUrl.path key:[NSString stringWithFormat:@"13:uploadtest: %d", arc4random() % 100000]];
+            //            [self uploadWithRecorder:fileUrl.path key:[NSString stringWithFormat:@"13:uploadtest: %d", arc4random() % 100000]];
+        }
+    }
+}
+
+- (void)uploadWithPiece:(NSString *)filePath key:(NSString *)key {
+    
+    NSLog(@"uploadkey: %@", key);
     QNUploadManager *upManager = [[QNUploadManager alloc] init];
     QNUploadOption *uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
+        NSLog(@"percent == %.2f", percent);
+    } params:nil checkCrc:NO cancellationSignal:nil];
+    
+    [upManager putFile:filePath key:key token:token complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+        NSLog(@"info ===== %@", info);
+        NSLog(@"resp ===== %@", resp);
+        
+    } option:uploadOption];
+}
+
+- (void)uploadWithRecorder:(NSString *)filePath key:(NSString *)key {
+    
+    NSLog(@"uploadkey: %@", key);
+    
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    
+    NSError *error = nil;
+    QNFileRecorder *file = [QNFileRecorder fileRecorderWithFolder:[NSTemporaryDirectory() stringByAppendingString:@"qiniutest"] error:&error];
+    NSLog(@"recorder error %@", error);
+    QNUploadManager *upManager = [[QNUploadManager alloc] initWithRecorder:file];
+    
+    __block BOOL flag = NO;
+    
+    //    QNUploadManager *upManager = [[QNUploadManager alloc] init];
+    QNUploadOption *uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
+        if (percent >= 0.5) {
+            flag = YES;
+        }
         NSLog(@"percent == %.2f", percent);
     }
                                                                  params:nil
                                                                checkCrc:NO
-                                                     cancellationSignal:nil];
-    [upManager putFile:filePath key:nil token:self.token complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+                                                     cancellationSignal:^BOOL() {
+                                                         return flag;
+                                                     }];
+    
+    
+    
+    [upManager putFile:filePath key:key token:token complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
         NSLog(@"info ===== %@", info);
         NSLog(@"resp ===== %@", resp);
+        
+        dispatch_semaphore_signal(semaphore);
     }
                 option:uploadOption];
+    
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    
+    __block BOOL failed = NO;
+    
+    uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
+        if (percent < 0.5 - 2 * 1024.0 / self.fileSize) {
+            failed = YES;
+        }
+        NSLog(@"continue progress %f,%f", percent, 0.5 - 2 * 1024.0 / self.fileSize);
+    }
+                                                 params:nil
+                                               checkCrc:NO
+                                     cancellationSignal:nil];
+    
+    [upManager putFile:filePath key:key token:token complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+        NSLog(@"info ===== %@", info);
+        NSLog(@"resp ===== %@", resp);
+        
+        NSLog(@"isSuccess: %d", !failed);
+    } option:uploadOption];
+    
 }
 
 - (void)gotoImageLibrary {
@@ -67,11 +139,11 @@
         [self presentViewController:picker animated:YES completion:nil];
     } else {
         UIAlertView *alert = [[UIAlertView alloc]
-                initWithTitle:@"访问图片库错误"
-                      message:@""
-                     delegate:nil
-            cancelButtonTitle:@"OK!"
-            otherButtonTitles:nil];
+                              initWithTitle:@"访问图片库错误"
+                              message:@""
+                              delegate:nil
+                              cancelButtonTitle:@"OK!"
+                              otherButtonTitles:nil];
         [alert show];
     }
 }

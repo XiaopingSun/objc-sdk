@@ -15,11 +15,11 @@
 
 #if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000) || (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1090)
 
-@interface QNProgessDelegate : NSObject <NSURLSessionDataDelegate>
-@property (nonatomic, strong) QNInternalProgressBlock progressBlock;
+@interface QNSessionDelegateManager : NSObject <NSURLSessionDataDelegate>
+@property (nonatomic, copy) QNInternalProgressBlock progressBlock;
 @property (nonatomic, strong) NSURLSessionUploadTask *task;
-@property (nonatomic, strong) QNCancelBlock cancelBlock;
-- (instancetype)initWithProgress:(QNInternalProgressBlock)progressBlock;
+@property (nonatomic, copy) QNCancelBlock cancelBlock;
+@property (nonatomic, copy) void (^sessionCompletionHandler)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error);
 @end
 
 static NSURL *buildUrl(NSString *host, NSNumber *port, NSString *path) {
@@ -39,26 +39,74 @@ static BOOL needRetry(NSHTTPURLResponse *httpResponse, NSError *error) {
     return status >= 500 && status < 600 && status != 579;
 }
 
-@implementation QNProgessDelegate
-- (instancetype)initWithProgress:(QNInternalProgressBlock)progressBlock {
-    if (self = [super init]) {
-        _progressBlock = progressBlock;
+static NSString *getUniqueString(NSInteger bitCount) {
+    
+    NSMutableString *string = [NSMutableString string];
+    for (int i = 0; i < bitCount; i++) {
+        int number = arc4random() % 36;
+        if (number < 10) {
+            int figure = arc4random() % 10;
+            NSString *tempString = [NSString stringWithFormat:@"%d", figure];
+            [string appendString:tempString];
+        }else {
+            int figure = (arc4random() % 26) + 97;
+            char character = figure;
+            NSString *tempString = [NSString stringWithFormat:@"%c", character];
+            [string appendString:tempString];
+        }
     }
+    return string;
+}
 
-    return self;
+@implementation QNSessionDelegateManager
+
+- (void)releaseBlock {
+    
+    self.task = nil;
+    self.cancelBlock = nil;
+    self.progressBlock = nil;
+//    self.sessionCompletionHandler = nil;
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
+
+    if (self.progressBlock) {
+        self.progressBlock(totalBytesSent, totalBytesExpectedToSend);
+    }
+    if (self.cancelBlock && self.cancelBlock()) {
+        [self.task cancel];
+    }
+}
+
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data {
+    
+    NSLog(@"%s", __func__);
+    
+    if (!dataTask.error) {
+        if (self.sessionCompletionHandler) {
+            self.sessionCompletionHandler(data, dataTask.response, dataTask.error);
+            [self releaseBlock];
+        }
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
-             didSendBodyData:(int64_t)bytesSent
-              totalBytesSent:(int64_t)totalBytesSent
-    totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
+didCompleteWithError:(nullable NSError *)error {
+    
+    NSLog(@"%s", __func__);
+    
+    if (error) {
+        if (self.sessionCompletionHandler) {
+            self.sessionCompletionHandler(nil, task.response, error);
+            [self releaseBlock];
+        }
+    }
+}
 
-    if (_progressBlock) {
-        _progressBlock(totalBytesSent, totalBytesExpectedToSend);
-    }
-    if (_cancelBlock && _cancelBlock()) {
-        [_task cancel];
-    }
+- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
+    
+    NSLog(@"%s", __func__);
 }
 
 @end
@@ -172,21 +220,35 @@ static BOOL needRetry(NSHTTPURLResponse *httpResponse, NSError *error) {
     QNInternalProgressBlock progressBlock2 = ^(long long totalBytesWritten, long long totalBytesExpectedToWrite) {
         progressBlock(totalBytesWritten, totalBytesExpectedToWrite);
     };
-    __block QNProgessDelegate *delegate = [[QNProgessDelegate alloc] initWithProgress:nil];
+    QNSessionDelegateManager *delegate = [[QNSessionDelegateManager alloc] init];
     delegate.progressBlock = progressBlock2;
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    
+    NSString *configIdentifier = [NSString stringWithFormat:@"com.qiniu.upload.identifier.%@", getUniqueString(16)];
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:configIdentifier];
+    
     if (_proxyDict) {
         configuration.connectionProxyDictionary = _proxyDict;
     }
     __block NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration delegate:delegate delegateQueue:_delegateQueue];
-    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:nil completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error) {
-
+    
+    NSData *data = nil;
+    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:data];
+    
+    delegate.task = uploadTask;
+    delegate.cancelBlock = cancelBlock;
+    
+    __weak typeof(self) weakself = self;
+    delegate.sessionCompletionHandler = ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        __strong typeof(self) strongself = weakself;
+        
+        [session finishTasksAndInvalidate];
+        
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         double duration = [[NSDate date] timeIntervalSinceDate:startTime];
         QNResponseInfo *info;
         NSDictionary *resp = nil;
-        if (_converter != nil && _noProxy && (index + 1 < ips.count || times > 0) && needRetry(httpResponse, error)) {
-            [self sendRequest2:request withCompleteBlock:completeBlock withProgressBlock:progressBlock withCancelBlock:cancelBlock withIpArray:ips withIndex:index + 1 withDomain:domain withRetryTimes:times - 1 withStartTime:startTime withAccess:access];
+        if (strongself.converter != nil && strongself.noProxy && (index + 1 < ips.count || times > 0) && needRetry(httpResponse, error)) {
+            [strongself sendRequest2:request withCompleteBlock:completeBlock withProgressBlock:progressBlock withCancelBlock:cancelBlock withIpArray:ips withIndex:index + 1 withDomain:domain withRetryTimes:times - 1 withStartTime:startTime withAccess:access];
             return;
         }
         if (error == nil) {
@@ -198,14 +260,9 @@ static BOOL needRetry(NSHTTPURLResponse *httpResponse, NSError *error) {
         } else {
             info = [QNSessionManager buildResponseInfo:httpResponse withError:error withDuration:duration withResponse:data withHost:domain withIp:ip];
         }
-        delegate.task = nil;
-        delegate.cancelBlock = nil;
-        delegate.progressBlock = nil;
         completeBlock(info, resp);
-        [session finishTasksAndInvalidate];
-    }];
-    delegate.task = uploadTask;
-    delegate.cancelBlock = cancelBlock;
+    };
+    
     [uploadTask resume];
 }
 
