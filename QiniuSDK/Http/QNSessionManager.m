@@ -233,7 +233,7 @@ didCompleteWithError:(nullable NSError *)error {
     NSLog(@"session create: %@", session.configuration.identifier);
     
     NSData *data = nil;
-    __block NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:data];
+    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:data];
     
     delegate.task = uploadTask;
     delegate.cancelBlock = cancelBlock;
@@ -260,7 +260,6 @@ didCompleteWithError:(nullable NSError *)error {
             info = [QNSessionManager buildResponseInfo:httpResponse withError:error withDuration:duration withResponse:data withHost:domain withIp:ip];
         }
         completeBlock(info, resp);
-        uploadTask = nil;
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_global_queue(0, 0), ^{
             NSLog(@"session invalidate: %@", session.configuration.identifier);

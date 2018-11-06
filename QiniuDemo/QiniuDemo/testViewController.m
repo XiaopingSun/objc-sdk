@@ -33,7 +33,7 @@ NSString *token = @"Oh5V7tcC3YiXDpQaXf6GMn_dIOVzQBnW9j4UZePS:cmpM8Zclh7ZVrZlR_VW
 
 - (void)dealloc
 {
-    
+    NSLog(@"dealloc success!");
 }
 
 - (void)initButton {
