@@ -19,6 +19,7 @@
 		93D230481C86D7F800434F6D /* QiniuDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 93D230471C86D7F800434F6D /* QiniuDemoUITests.m */; };
 		CC360B04218AEE8300FEF504 /* IMG_4130.m4v in Resources */ = {isa = PBXBuildFile; fileRef = CC360B03218AEE8300FEF504 /* IMG_4130.m4v */; };
 		CC360B07218AEEA200FEF504 /* QNTempFile.m in Sources */ = {isa = PBXBuildFile; fileRef = CC360B05218AEEA200FEF504 /* QNTempFile.m */; };
+		CC3AB896219134CD00753E9C /* testViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CC3AB895219134CD00753E9C /* testViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,8 @@
 		CC360B03218AEE8300FEF504 /* IMG_4130.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = IMG_4130.m4v; sourceTree = "<group>"; };
 		CC360B05218AEEA200FEF504 /* QNTempFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QNTempFile.m; sourceTree = "<group>"; };
 		CC360B06218AEEA200FEF504 /* QNTempFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QNTempFile.h; sourceTree = "<group>"; };
+		CC3AB894219134CD00753E9C /* testViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = testViewController.h; sourceTree = "<group>"; };
+		CC3AB895219134CD00753E9C /* testViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = testViewController.m; sourceTree = "<group>"; };
 		E7D8BA8B588B4620EDD9AECA /* Pods-QiniuDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QiniuDemoTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-QiniuDemoTests/Pods-QiniuDemoTests.release.xcconfig"; sourceTree = "<group>"; };
 		F90FEC5E40BE695E8AA6A8A7 /* Pods-QiniuDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QiniuDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-QiniuDemo/Pods-QiniuDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -145,6 +148,8 @@
 				93D230261C86D7F700434F6D /* AppDelegate.m */,
 				93D230281C86D7F700434F6D /* ViewController.h */,
 				93D230291C86D7F700434F6D /* ViewController.m */,
+				CC3AB894219134CD00753E9C /* testViewController.h */,
+				CC3AB895219134CD00753E9C /* testViewController.m */,
 				93D2302B1C86D7F700434F6D /* Main.storyboard */,
 				93D2302E1C86D7F700434F6D /* Assets.xcassets */,
 				93D230301C86D7F700434F6D /* LaunchScreen.storyboard */,
@@ -250,6 +255,11 @@
 					93D2301E1C86D7F700434F6D = {
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = GDFHW66V92;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 0;
+							};
+						};
 					};
 					93D230371C86D7F700434F6D = {
 						CreatedOnToolsVersion = 7.2;
@@ -357,6 +367,7 @@
 				93D2302A1C86D7F700434F6D /* ViewController.m in Sources */,
 				93D230271C86D7F700434F6D /* AppDelegate.m in Sources */,
 				93D230241C86D7F700434F6D /* main.m in Sources */,
+				CC3AB896219134CD00753E9C /* testViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -62,10 +62,9 @@ static NSString *getUniqueString(NSInteger bitCount) {
 
 - (void)releaseBlock {
     
-    self.task = nil;
     self.cancelBlock = nil;
     self.progressBlock = nil;
-//    self.sessionCompletionHandler = nil;
+    self.sessionCompletionHandler = nil;
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
@@ -231,8 +230,10 @@ didCompleteWithError:(nullable NSError *)error {
     }
     __block NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration delegate:delegate delegateQueue:_delegateQueue];
     
+    NSLog(@"session create: %@", session.configuration.identifier);
+    
     NSData *data = nil;
-    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:data];
+    __block NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:data];
     
     delegate.task = uploadTask;
     delegate.cancelBlock = cancelBlock;
@@ -240,8 +241,6 @@ didCompleteWithError:(nullable NSError *)error {
     __weak typeof(self) weakself = self;
     delegate.sessionCompletionHandler = ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         __strong typeof(self) strongself = weakself;
-        
-        [session finishTasksAndInvalidate];
         
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         double duration = [[NSDate date] timeIntervalSinceDate:startTime];
@@ -261,6 +260,12 @@ didCompleteWithError:(nullable NSError *)error {
             info = [QNSessionManager buildResponseInfo:httpResponse withError:error withDuration:duration withResponse:data withHost:domain withIp:ip];
         }
         completeBlock(info, resp);
+        uploadTask = nil;
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_global_queue(0, 0), ^{
+            NSLog(@"session invalidate: %@", session.configuration.identifier);
+            [session finishTasksAndInvalidate];
+        });
     };
     
     [uploadTask resume];
