@@ -62,6 +62,7 @@ static NSString *getUniqueString(NSInteger bitCount) {
 
 - (void)releaseBlock {
     
+//    self.task = nil;
     self.cancelBlock = nil;
     self.progressBlock = nil;
     self.sessionCompletionHandler = nil;
@@ -108,6 +109,18 @@ didCompleteWithError:(nullable NSError *)error {
     NSLog(@"%s", __func__);
 }
 
+//- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+//didReceiveResponse:(NSURLResponse *)response
+// completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+//
+//    completionHandler(NSURLSessionResponseAllow);
+//}
+
+//- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * __nullable credential))completionHandler {
+//
+//
+//}
+
 @end
 
 @interface QNSessionManager ()
@@ -116,6 +129,8 @@ didCompleteWithError:(nullable NSError *)error {
 @property bool noProxy;
 @property (nonatomic, strong) NSDictionary *proxyDict;
 @property (nonatomic, strong) NSOperationQueue *delegateQueue;
+@property (nonatomic, strong) NSURLSession *session;
+@property (nonatomic, strong) QNSessionDelegateManager *sessionDelegateManager;
 @end
 
 @implementation QNSessionManager
@@ -124,15 +139,24 @@ didCompleteWithError:(nullable NSError *)error {
                       timeout:(UInt32)timeout
                  urlConverter:(QNUrlConvert)converter {
     if (self = [super init]) {
+
+        _delegateQueue = [[NSOperationQueue alloc] init];
+        _sessionDelegateManager = [[QNSessionDelegateManager alloc] init];
+        _timeout = timeout;
+        _converter = converter;
+
+        NSString *configIdentifier = [NSString stringWithFormat:@"com.qiniu.upload.identifier.%@", getUniqueString(16)];
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:configIdentifier];
+        
         if (proxyDict != nil) {
             _noProxy = NO;
             _proxyDict = proxyDict;
+            configuration.connectionProxyDictionary = _proxyDict;
         } else {
             _noProxy = YES;
         }
-        _delegateQueue = [[NSOperationQueue alloc] init];
-        _timeout = timeout;
-        _converter = converter;
+
+        _session = [NSURLSession sessionWithConfiguration:configuration delegate:_sessionDelegateManager delegateQueue:_delegateQueue];
     }
 
     return self;
@@ -212,34 +236,20 @@ didCompleteWithError:(nullable NSError *)error {
     [request setTimeoutInterval:_timeout];
     [request setValue:[[QNUserAgent sharedInstance] getUserAgent:access] forHTTPHeaderField:@"User-Agent"];
     [request setValue:nil forHTTPHeaderField:@"Accept-Language"];
-    if (progressBlock == nil) {
-        progressBlock = ^(long long totalBytesWritten, long long totalBytesExpectedToWrite) {
-        };
-    }
-    QNInternalProgressBlock progressBlock2 = ^(long long totalBytesWritten, long long totalBytesExpectedToWrite) {
-        progressBlock(totalBytesWritten, totalBytesExpectedToWrite);
-    };
-    QNSessionDelegateManager *delegate = [[QNSessionDelegateManager alloc] init];
-    delegate.progressBlock = progressBlock2;
-    
-    NSString *configIdentifier = [NSString stringWithFormat:@"com.qiniu.upload.identifier.%@", getUniqueString(16)];
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:configIdentifier];
-    
-    if (_proxyDict) {
-        configuration.connectionProxyDictionary = _proxyDict;
-    }
-    __block NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration delegate:delegate delegateQueue:_delegateQueue];
-    
-    NSLog(@"session create: %@", session.configuration.identifier);
     
     NSData *data = nil;
-    NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromData:data];
+    NSURLSessionUploadTask *uploadTask = [_session uploadTaskWithRequest:request fromData:data];
     
-    delegate.task = uploadTask;
-    delegate.cancelBlock = cancelBlock;
+    QNInternalProgressBlock progressBlock2 = progressBlock == nil ? ^(long long totalBytesWritten, long long totalBytesExpectedToWrite) {} : ^(long long totalBytesWritten, long long totalBytesExpectedToWrite) {
+        progressBlock(totalBytesWritten, totalBytesExpectedToWrite);
+    };
+    
+    _sessionDelegateManager.progressBlock = progressBlock2;
+    _sessionDelegateManager.task = uploadTask;
+    _sessionDelegateManager.cancelBlock = cancelBlock;
     
     __weak typeof(self) weakself = self;
-    delegate.sessionCompletionHandler = ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    _sessionDelegateManager.sessionCompletionHandler = ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         __strong typeof(self) strongself = weakself;
         
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
@@ -260,13 +270,7 @@ didCompleteWithError:(nullable NSError *)error {
             info = [QNSessionManager buildResponseInfo:httpResponse withError:error withDuration:duration withResponse:data withHost:domain withIp:ip];
         }
         completeBlock(info, resp);
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_global_queue(0, 0), ^{
-            NSLog(@"session invalidate: %@", session.configuration.identifier);
-            [session finishTasksAndInvalidate];
-        });
     };
-    
     [uploadTask resume];
 }
 

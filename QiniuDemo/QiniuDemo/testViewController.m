@@ -9,7 +9,7 @@
 #import "testViewController.h"
 #import "QNTempFile.h"
 
-NSString *token = @"Oh5V7tcC3YiXDpQaXf6GMn_dIOVzQBnW9j4UZePS:cmpM8Zclh7ZVrZlR_VW3gKQA25s=:eyJzY29wZSI6InB1cnN1ZSIsImRlYWRsaW5lIjoxNTQxNTcxNjA2fQo=";
+NSString *token = @"Oh5V7tcC3YiXDpQaXf6GMn_dIOVzQBnW9j4UZePS:AW18qay4f_DMOTajnAas4EhvN_o=:eyJzY29wZSI6InB1cnN1ZSIsImRlYWRsaW5lIjoxNTQxNjU4NzAwfQo=";
 
 @interface testViewController ()<UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 @property (nonatomic, strong) NSString *token;
@@ -26,7 +26,7 @@ NSString *token = @"Oh5V7tcC3YiXDpQaXf6GMn_dIOVzQBnW9j4UZePS:cmpM8Zclh7ZVrZlR_VW
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor whiteColor];
     self.urlArray = [NSMutableArray array];
-    self.fileSize = 40 * 1024;
+    self.fileSize = 120 * 1024;
     
     [self initButton];
 }
@@ -160,7 +160,7 @@ NSString *token = @"Oh5V7tcC3YiXDpQaXf6GMn_dIOVzQBnW9j4UZePS:cmpM8Zclh7ZVrZlR_VW
         sender.backgroundColor = [UIColor grayColor];
         for (NSURL *fileUrl  in self.urlArray) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self uploadWithPiece:fileUrl.path key:[NSString stringWithFormat:@"13:uploadtest: %d", arc4random() % 100000]];
+                [self uploadWithPiece:fileUrl.path key:[NSString stringWithFormat:@"Sun:uploadtest: %d", arc4random() % 100000]];
                 //            [self uploadWithRecorder:fileUrl.path key:[NSString stringWithFormat:@"13:uploadtest: %d", arc4random() % 100000]];
             });
         }
