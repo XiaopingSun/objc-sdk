@@ -14,6 +14,7 @@
 #import "QNUploadManager.h"
 #import "QNUploadOption+Private.h"
 #import "QNUrlSafeBase64.h"
+#import "QNAsyncRun.h"
 
 @interface QNFormUpload ()
 
@@ -65,6 +66,22 @@
     parameters[@"token"] = _token.token;
     [parameters addEntriesFromDictionary:_option.params];
     parameters[@"crc32"] = [NSString stringWithFormat:@"%u", (unsigned int)[QNCrc32 data:_data]];
+    
+    [self nextTask:0 needDelay:NO host:[_config.zone up:_token isHttps:_config.useHttps frozenDomain:nil] param:parameters];
+}
+
+- (void)nextTask:(int)retried needDelay:(BOOL)isNeedDelay host:(NSString *)host param:(NSDictionary *)param {
+    if (isNeedDelay) {
+        QNAsyncRunAfter(_config.retryInterval, ^{
+            [self nextTask:retried host:host param:param];
+        });
+    } else {
+        [self nextTask:retried host:host param:param];
+    }
+}
+
+- (void)nextTask:(int)retried host:(NSString *)host param:(NSDictionary *)param {
+
     QNInternalProgressBlock p = ^(long long totalBytesWritten, long long totalBytesExpectedToWrite) {
         float percent = (float)totalBytesWritten / (float)totalBytesExpectedToWrite;
         if (percent > 0.95) {
@@ -77,7 +94,6 @@
         }
         _option.progressHandler(_key, percent);
     };
-    __block NSString *upHost = [_config.zone up:_token isHttps:_config.useHttps frozenDomain:nil];
     QNCompleteBlock complete = ^(QNResponseInfo *info, NSDictionary *resp) {
         if (info.isOK) {
             _option.progressHandler(_key, 1.0);
@@ -90,55 +106,24 @@
             _complete([QNResponseInfo cancel], _key, nil);
             return;
         }
-        __block NSString *nextHost = upHost;
-        if (info.isConnectionBroken || info.needSwitchServer) {
-            nextHost = [_config.zone up:_token isHttps:_config.useHttps frozenDomain:nextHost];
-        }
-        QNCompleteBlock retriedComplete = ^(QNResponseInfo *info, NSDictionary *resp) {
-            if (info.isOK) {
-                _option.progressHandler(_key, 1.0);
-            }
-            if (info.isOK || !info.couldRetry) {
-                _complete(info, _key, resp);
-                return;
-            }
-            if (_option.cancellationSignal()) {
-                _complete([QNResponseInfo cancel], _key, nil);
-                return;
-            }
-            NSString *thirdHost = nextHost;
-            if (info.isConnectionBroken || info.needSwitchServer) {
-                thirdHost = [_config.zone up:_token isHttps:_config.useHttps frozenDomain:nextHost];
-            }
-            QNCompleteBlock thirdComplete = ^(QNResponseInfo *info, NSDictionary *resp) {
-                if (info.isOK) {
-                    _option.progressHandler(_key, 1.0);
+        if (retried < _config.retryMax) {
+            [self nextTask:retried + 1 needDelay:YES host:host param:param];
+        } else {
+            if (_config.allowBackupHost) {
+                NSString *nextHost = [_config.zone up:_token isHttps:_config.useHttps frozenDomain:host];
+                if (nextHost) {
+                    [self nextTask:0 needDelay:YES host:nextHost param:param];
+                } else {
+                    _complete(info, _key, resp);
                 }
+            } else {
                 _complete(info, _key, resp);
-            };
-            [_httpManager multipartPost:thirdHost
-                               withData:_data
-                             withParams:parameters
-                           withFileName:_fileName
-                           withMimeType:_option.mimeType
-                      withCompleteBlock:thirdComplete
-                      withProgressBlock:p
-                        withCancelBlock:_option.cancellationSignal
-                             withAccess:_access];
-        };
-        [_httpManager multipartPost:nextHost
-                           withData:_data
-                         withParams:parameters
-                       withFileName:_fileName
-                       withMimeType:_option.mimeType
-                  withCompleteBlock:retriedComplete
-                  withProgressBlock:p
-                    withCancelBlock:_option.cancellationSignal
-                         withAccess:_access];
+            }
+        }
     };
-    [_httpManager multipartPost:upHost
+    [_httpManager multipartPost:host
                        withData:_data
-                     withParams:parameters
+                     withParams:param
                    withFileName:_fileName
                    withMimeType:_option.mimeType
               withCompleteBlock:complete

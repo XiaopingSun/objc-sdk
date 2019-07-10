@@ -14,6 +14,7 @@
 #import "QNUploadManager.h"
 #import "QNUploadOption+Private.h"
 #import "QNUrlSafeBase64.h"
+#import "QNAsyncRun.h"
 
 typedef void (^task)(void);
 
@@ -176,7 +177,18 @@ typedef void (^task)(void);
     return offset;
 }
 
+- (void)nextTask:(UInt32)offset needDelay:(BOOL)isNeedDelay retriedTimes:(int)retried host:(NSString *)host {
+    if (isNeedDelay) {
+        QNAsyncRunAfter(_config.retryInterval, ^{
+            [self nextTask:offset retriedTimes:retried host:host];
+        });
+    } else {
+        [self nextTask:offset retriedTimes:retried host:host];
+    }
+}
+
 - (void)nextTask:(UInt32)offset retriedTimes:(int)retried host:(NSString *)host {
+    NSLog(@"use host: %@", host);
     if (self.option.cancellationSignal()) {
         self.complete([QNResponseInfo cancel], self.key, nil);
         return;
@@ -187,11 +199,23 @@ typedef void (^task)(void);
             if (info.isOK) {
                 [self removeRecord];
                 self.option.progressHandler(self.key, 1.0);
-            } else if (info.couldRetry && retried < _config.retryMax) {
-                [self nextTask:offset retriedTimes:retried + 1 host:host];
-                return;
+                self.complete(info, self.key, resp);
+            } else if (info.couldRetry) {
+                if (retried < _config.retryMax) {
+                    [self nextTask:offset needDelay:YES retriedTimes:retried + 1 host:host];
+                } else {
+                    if (_config.allowBackupHost) {
+                        NSString *nextHost = [_config.zone up:_token isHttps:_config.useHttps frozenDomain:host];
+                        if (nextHost) {
+                            [self nextTask:offset needDelay:YES retriedTimes:0 host:nextHost];
+                        } else {
+                            self.complete(info, self.key, resp);
+                        }
+                    } else {
+                        self.complete(info, self.key, resp);
+                    }
+                }
             }
-            self.complete(info, self.key, resp);
         };
         [self makeFile:host complete:completionHandler];
         return;
@@ -213,38 +237,45 @@ typedef void (^task)(void);
 
     QNCompleteBlock completionHandler = ^(QNResponseInfo *info, NSDictionary *resp) {
         if (info.error != nil) {
-            if (info.statusCode == 701) {
-                [self nextTask:(offset / kQNBlockSize) * kQNBlockSize retriedTimes:0 host:host];
-                return;
+            if (info.couldRetry) {
+                if (retried < _config.retryMax) {
+                    [self nextTask:offset needDelay:YES retriedTimes:retried + 1 host:host];
+                } else {
+                    if (_config.allowBackupHost) {
+                        NSString *nextHost = [_config.zone up:_token isHttps:_config.useHttps frozenDomain:host];
+                        if (nextHost) {
+                            [self nextTask:offset needDelay:YES retriedTimes:0 host:nextHost];
+                        } else {
+                            self.complete(info, self.key, resp);
+                        }
+                    } else {
+                        self.complete(info, self.key, resp);
+                    }
+                }
+            } else {
+                if (info.statusCode == 701) {
+                    [self nextTask:(offset / kQNBlockSize) * kQNBlockSize needDelay:YES retriedTimes:0 host:host];
+                } else {
+                    self.complete(info, self.key, resp);
+                }
             }
-            if (retried >= _config.retryMax || !info.couldRetry) {
-                self.complete(info, self.key, resp);
-                return;
-            }
-
-            NSString *nextHost = host;
-            if (info.isConnectionBroken || info.needSwitchServer) {
-                nextHost = [_config.zone up:_token isHttps:_config.useHttps frozenDomain:nextHost];
-            }
-
-            [self nextTask:offset retriedTimes:retried + 1 host:nextHost];
             return;
         }
 
         if (resp == nil) {
-            [self nextTask:offset retriedTimes:retried host:host];
+            [self nextTask:offset needDelay:YES retriedTimes:retried host:host];
             return;
         }
 
         NSString *ctx = resp[@"ctx"];
         NSNumber *crc = resp[@"crc32"];
         if (ctx == nil || crc == nil || [crc unsignedLongValue] != _chunkCrc) {
-            [self nextTask:offset retriedTimes:retried host:host];
+            [self nextTask:offset needDelay:YES retriedTimes:retried host:host];
             return;
         }
         _contexts[offset / kQNBlockSize] = ctx;
         [self record:offset + chunkSize];
-        [self nextTask:offset + chunkSize retriedTimes:retried host:host];
+        [self nextTask:offset + chunkSize needDelay:NO retriedTimes:retried host:host];
     };
     if (offset % kQNBlockSize == 0) {
         UInt32 blockSize = [self calcBlockSize:offset];
@@ -330,7 +361,7 @@ typedef void (^task)(void);
 - (void)run {
     @autoreleasepool {
         UInt32 offset = [self recoveryFromRecord];
-        [self nextTask:offset retriedTimes:0 host:[_config.zone up:_token isHttps:_config.useHttps frozenDomain:nil]];
+        [self nextTask:offset needDelay:NO retriedTimes:0 host:[_config.zone up:_token isHttps:_config.useHttps frozenDomain:nil]];
     }
 }
 

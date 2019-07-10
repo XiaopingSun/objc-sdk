@@ -29,6 +29,7 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
         _chunkSize = builder.chunkSize;
         _putThreshold = builder.putThreshold;
         _retryMax = builder.retryMax;
+        _retryInterval = builder.retryInterval;
         _timeoutInterval = builder.timeoutInterval;
 
         _recorder = builder.recorder;
@@ -43,6 +44,7 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
         _zone = builder.zone;
 
         _useHttps = builder.useHttps;
+        _allowBackupHost = builder.allowBackupHost;
     }
     return self;
 }
@@ -58,6 +60,7 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
         _putThreshold = 4 * 1024 * 1024;
         _retryMax = 3;
         _timeoutInterval = 60;
+        _retryInterval = 0.5;
 
         _recorder = nil;
         _recorderKeyGen = nil;
@@ -72,6 +75,7 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
         }
 
         _useHttps = YES;
+        _allowBackupHost = YES;
     }
     return self;
 }
@@ -171,12 +175,15 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
     if (upDomain) {
         [zoneInfo.upDomainsDic setObject:[NSDate dateWithTimeIntervalSince1970:0] forKey:upDomain];
     } else {
-        //reset all the up host frozen time
-        for (NSString *domain in zoneInfo.upDomainsList) {
-            [zoneInfo.upDomainsDic setObject:[NSDate dateWithTimeIntervalSince1970:0] forKey:domain];
-        }
-        if (zoneInfo.upDomainsList.count > 0) {
-            upDomain = zoneInfo.upDomainsList[0];
+        
+        //reset all the up host frozen time when first time
+        if (!lastUpHost) {
+            for (NSString *domain in zoneInfo.upDomainsList) {
+                [zoneInfo.upDomainsDic setObject:[NSDate dateWithTimeIntervalSince1970:0] forKey:domain];
+            }
+            if (zoneInfo.upDomainsList.count > 0) {
+                upDomain = zoneInfo.upDomainsList[0];
+            }
         }
     }
 
