@@ -114,7 +114,12 @@
                 if (nextHost) {
                     [self nextTask:0 needDelay:YES host:nextHost param:param];
                 } else {
-                    _complete(info, _key, resp);
+                    QNZonesInfo *zonesInfo = [_config.zone getZonesInfoWithToken:_token];
+                    if ([zonesInfo checkoutBackupZone]) {
+                        [self nextTask:0 needDelay:YES host:[_config.zone up:_token isHttps:_config.useHttps frozenDomain:nil] param:param];
+                    } else {
+                        _complete(info, _key, resp);
+                    }
                 }
             } else {
                 _complete(info, _key, resp);

@@ -91,14 +91,24 @@ typedef void (^QNConfigurationBuilderBlock)(QNConfigurationBuilder *builder);
 @end
 
 typedef void (^QNPrequeryReturn)(int code);
+typedef NS_ENUM(NSUInteger, QNZoneInfoType) {
+    QNZoneInfoTypeMain,
+    QNZoneInfoTypeBackup,
+};
 
 @class QNUpToken;
-@class QNZoneInfo;
+@class QNBaseZoneInfo;
+
+@interface QNZonesInfo : NSObject
+
+@property (readonly, nonatomic) NSArray<QNBaseZoneInfo *> *zonesInfo;
+@property (readonly, nonatomic) QNBaseZoneInfo *currentZoneInfo;
+
+- (BOOL)checkoutBackupZone;
+
+@end
 
 @interface QNZone : NSObject
-
-@property (nonatomic, strong) NSArray<NSString *> *upDomainList;
-@property (nonatomic, strong) QNZoneInfo *zoneInfo;
 
 /**
  *    默认上传服务器地址列表
@@ -106,22 +116,11 @@ typedef void (^QNPrequeryReturn)(int code);
 - (void)preQuery:(QNUpToken *)token
               on:(QNPrequeryReturn)ret;
 
+- (QNZonesInfo *)getZonesInfoWithToken:(QNUpToken *)token;
+
 - (NSString *)up:(QNUpToken *)token
          isHttps:(BOOL)isHttps
     frozenDomain:(NSString *)frozenDomain;
-
-@end
-
-@interface QNZoneInfo : NSObject
-
-@property (readonly, nonatomic) long ttl;
-@property (readonly, nonatomic) NSMutableArray<NSString *> *upDomainsList;
-@property (readonly, nonatomic) NSMutableDictionary *upDomainsDic;
-
-- (instancetype)init:(long)ttl
-       upDomainsList:(NSMutableArray<NSString *> *)upDomainsList
-        upDomainsDic:(NSMutableDictionary *)upDomainsDic;
-- (QNZoneInfo *)buildInfoFromJson:(NSDictionary *)resp;
 
 @end
 
@@ -180,21 +179,10 @@ typedef void (^QNPrequeryReturn)(int code);
  */
 + (instancetype)createWithHost:(NSArray<NSString *> *)upList;
 
-- (void)preQuery:(QNUpToken *)token
-              on:(QNPrequeryReturn)ret;
-
-- (NSString *)up:(QNUpToken *)token
-         isHttps:(BOOL)isHttps
-    frozenDomain:(NSString *)frozenDomain;
 @end
 
 @interface QNAutoZone : QNZone
-
-
-- (NSString *)up:(QNUpToken *)token
-         isHttps:(BOOL)isHttps
-    frozenDomain:(NSString *)frozenDomain;
-
+ 
 @end
 
 @interface QNConfigurationBuilder : NSObject

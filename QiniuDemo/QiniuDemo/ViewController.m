@@ -7,14 +7,14 @@
 //
 
 #import "ViewController.h"
-#import "AFNetworking.h"
-#import "UIImageView+AFNetworking.h"
+//#import "AFNetworking.h"
+//#import "UIImageView+AFNetworking.h"
 
 @interface ViewController () <UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
 @property (nonatomic, strong) NSString *token;
 @property (nonatomic, strong) UIImage *pickImage;
-
+@property (nonatomic, strong) QNUploadManager *upManager;
 @end
 
 @implementation ViewController
@@ -23,6 +23,10 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     self.title = @"七牛云上传";
+    QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
+        
+    }];
+    _upManager = [[QNUploadManager alloc] initWithConfiguration:config];
 }
 
 - (IBAction)chooseAction:(id)sender {
@@ -30,29 +34,30 @@
 }
 
 - (IBAction)uploadAction:(id)sender {
-    if (self.pickImage == nil) {
-        UIAlertView *alert = [[UIAlertView alloc]
-                initWithTitle:@"还未选择图片"
-                      message:@""
-                     delegate:nil
-            cancelButtonTitle:@"OK!"
-            otherButtonTitles:nil];
-        [alert show];
-    } else {
-        [self uploadImageToQNFilePath:[self getImagePath:self.pickImage]];
-    }
+//    if (self.pickImage == nil) {
+//        UIAlertView *alert = [[UIAlertView alloc]
+//                initWithTitle:@"还未选择图片"
+//                      message:@""
+//                     delegate:nil
+//            cancelButtonTitle:@"OK!"
+//            otherButtonTitles:nil];
+//        [alert show];
+//    } else {
+//        [self uploadImageToQNFilePath:[self getImagePath:self.pickImage]];
+//    }
+    
+    [self uploadImageToQNFilePath:[[NSBundle mainBundle] pathForResource:@"IMG_3663" ofType:@"mp4"]];
 }
 
 - (void)uploadImageToQNFilePath:(NSString *)filePath {
-    self.token = @"你的token";
-    QNUploadManager *upManager = [[QNUploadManager alloc] init];
+    self.token = @"bjtWBQXrcxgo7HWwlC_bgHg81j352_GhgBGZPeOW:kJk-ewB10r4AmOPXa9PnI1p_SQs=:eyJzY29wZSI6InNodWFuZ2h1bzEiLCJkZWFkbGluZSI6MTU2ODc5MjM5OH0K";
     QNUploadOption *uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
         NSLog(@"percent == %.2f", percent);
     }
                                                                  params:nil
                                                                checkCrc:NO
                                                      cancellationSignal:nil];
-    [upManager putFile:filePath key:nil token:self.token complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+    [_upManager putFile:filePath key:nil token:self.token complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
         NSLog(@"info ===== %@", info);
         NSLog(@"resp ===== %@", resp);
     }

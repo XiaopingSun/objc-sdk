@@ -209,7 +209,12 @@ typedef void (^task)(void);
                         if (nextHost) {
                             [self nextTask:offset needDelay:YES retriedTimes:0 host:nextHost];
                         } else {
-                            self.complete(info, self.key, resp);
+                            QNZonesInfo *zonesInfo = [_config.zone getZonesInfoWithToken:_token];
+                            if ([zonesInfo checkoutBackupZone]) {
+                                [self nextTask:offset needDelay:YES retriedTimes:0 host:[_config.zone up:_token isHttps:_config.useHttps frozenDomain:nil]];
+                            } else {
+                                self.complete(info, self.key, resp);
+                            }
                         }
                     } else {
                         self.complete(info, self.key, resp);
@@ -246,7 +251,12 @@ typedef void (^task)(void);
                         if (nextHost) {
                             [self nextTask:offset needDelay:YES retriedTimes:0 host:nextHost];
                         } else {
-                            self.complete(info, self.key, resp);
+                            QNZonesInfo *zonesInfo = [_config.zone getZonesInfoWithToken:_token];
+                            if ([zonesInfo checkoutBackupZone]) {
+                                [self nextTask:offset needDelay:YES retriedTimes:0 host:[_config.zone up:_token isHttps:_config.useHttps frozenDomain:nil]];
+                            } else {
+                                self.complete(info, self.key, resp);
+                            }
                         }
                     } else {
                         self.complete(info, self.key, resp);
