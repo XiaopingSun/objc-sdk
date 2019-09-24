@@ -50,7 +50,7 @@
 }
 
 - (void)uploadImageToQNFilePath:(NSString *)filePath {
-    self.token = @"bjtWBQXrcxgo7HWwlC_bgHg81j352_GhgBGZPeOW:kJk-ewB10r4AmOPXa9PnI1p_SQs=:eyJzY29wZSI6InNodWFuZ2h1bzEiLCJkZWFkbGluZSI6MTU2ODc5MjM5OH0K";
+    self.token = @"bjtWBQXrcxgo7HWwlC_bgHg81j352_GhgBGZPeOW:b8N-Fb3CUBl0pJ0kN2RI5WiinIQ=:eyJzY29wZSI6InNodWFuZ2h1bzEiLCJkZWFkbGluZSI6MTU2OTM3NDc3MX0K";
     QNUploadOption *uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
         NSLog(@"percent == %.2f", percent);
     }

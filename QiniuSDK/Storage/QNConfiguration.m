@@ -158,7 +158,6 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
     self = [super init];
     if (self) {
         _zonesInfo = zonesInfo;
-        _currentZoneInfo = zonesInfo[0];
     }
     return self;
 }
@@ -167,9 +166,9 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
     
     NSMutableArray *zonesInfo = [NSMutableArray array];
     NSArray *hosts = resp[@"hosts"];
-    for (NSDictionary *host in hosts) {
-        QNBaseZoneInfo *zoneInfo = [[[QNBaseZoneInfo alloc] init] buildInfoFromJson:host];
-        zoneInfo.type = [hosts indexOfObject:host] == 0 ? QNZoneInfoTypeMain : QNZoneInfoTypeBackup;
+    for (NSInteger i = 0; i < hosts.count; i++) {
+        QNBaseZoneInfo *zoneInfo = [[[QNBaseZoneInfo alloc] init] buildInfoFromJson:hosts[i]];
+        zoneInfo.type = i == 0 ? QNZoneInfoTypeMain : QNZoneInfoTypeBackup;
         [zonesInfo addObject:zoneInfo];
     }
     return [[[self class] alloc] initWithZonesInfo:zonesInfo];
@@ -177,10 +176,10 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
 
 - (BOOL)checkoutBackupZone {
     
-    if (_zonesInfo.count < 2 || _currentZoneInfo.type == QNZoneInfoTypeBackup) return NO;
+//    if (_zonesInfo.count < 2 || _currentZoneInfo.type == QNZoneInfoTypeBackup) return NO;
     for (QNBaseZoneInfo *zoneInfo in _zonesInfo) {
         if (zoneInfo.type == QNZoneInfoTypeBackup) {
-            _currentZoneInfo = zoneInfo;
+//            _currentZoneInfo = zoneInfo;
             return YES;
             break;
         }

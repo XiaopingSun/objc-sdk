@@ -102,7 +102,6 @@ typedef NS_ENUM(NSUInteger, QNZoneInfoType) {
 @interface QNZonesInfo : NSObject
 
 @property (readonly, nonatomic) NSArray<QNBaseZoneInfo *> *zonesInfo;
-@property (readonly, nonatomic) QNBaseZoneInfo *currentZoneInfo;
 
 - (BOOL)checkoutBackupZone;
 

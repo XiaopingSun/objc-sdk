@@ -17,31 +17,31 @@
                            @"ttl": @(86400),
                            @"io": @{
                                    @"src": @{
-                                           @"main": @[@"io.src.main"]
+                                           @"main": @[@"1.io.src.main"]
                                            }
                                    },
                            @"up": @{
                                    @"acc": @{
                                            @"backup": @[
-                                                   @"up.acc.backup1",
-                                                   @"up.acc.backup2"
+                                                   @"1.up.acc.backup1",
+                                                   @"1.up.acc.backup2"
                                                    ],
-                                           @"main": @[@"up.acc.main"]
+                                           @"main": @[@"1.up.acc.main"]
                                            },
                                    @"old_acc": @{
                                            @"info": @"compatible to non-SNI device",
-                                           @"main": @[@"up.old_acc.main"]
+                                           @"main": @[@"1.up.old_acc.main"]
                                            },
                                    @"old_src": @{
                                            @"info": @"compatible to non-SNI device",
-                                           @"main": @[@"up.old_src.main"]
+                                           @"main": @[@"1.up.old_src.main"]
                                            },
                                    @"src": @{
                                            @"backup": @[
-                                                   @"up.src.backup1",
-                                                   @"up.src.backup2"
+                                                   @"1.up.src.backup1",
+                                                   @"1.up.src.backup2"
                                                    ],
-                                           @"main": @[@"up.src.main"]
+                                           @"main": @[@"1.up.src.main"]
                                            }
                                    }
                            };
@@ -49,31 +49,31 @@
                              @"ttl": @(86400),
                              @"io": @{
                                      @"src": @{
-                                             @"main": @[@"io.src.main"]
+                                             @"main": @[@"2.io.src.main"]
                                              }
                                      },
                              @"up": @{
                                      @"acc": @{
                                              @"backup": @[
-                                                     @"up.acc.backup1",
-                                                     @"up.acc.backup2"
+                                                     @"2.up.acc.backup1",
+                                                     @"2.up.acc.backup2"
                                                      ],
-                                             @"main": @[@"up.acc.main"]
+                                             @"main": @[@"2.up.acc.main"]
                                              },
                                      @"old_acc": @{
                                              @"info": @"compatible to non-SNI device",
-                                             @"main": @[@"up.old_acc.main"]
+                                             @"main": @[@"2.up.old_acc.main"]
                                              },
                                      @"old_src": @{
                                              @"info": @"compatible to non-SNI device",
-                                             @"main": @[@"up.old_src.main"]
+                                             @"main": @[@"2.up.old_src.main"]
                                              },
                                      @"src": @{
                                              @"backup": @[
-                                                     @"up.src.backup1",
-                                                     @"up.src.backup2"
+                                                     @"2.up.src.backup1",
+                                                     @"2.up.src.backup2"
                                                      ],
-                                             @"main": @[@"up.src.main"]
+                                             @"main": @[@"2.up.src.main"]
                                              }
                                      }
                              };
