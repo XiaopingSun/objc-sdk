@@ -174,17 +174,20 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
     return [[[self class] alloc] initWithZonesInfo:zonesInfo];
 }
 
-- (BOOL)checkoutBackupZone {
+- (QNBaseZoneInfo *)getZoneInfoWithType:(QNZoneInfoType)type {
     
-//    if (_zonesInfo.count < 2 || _currentZoneInfo.type == QNZoneInfoTypeBackup) return NO;
-    for (QNBaseZoneInfo *zoneInfo in _zonesInfo) {
-        if (zoneInfo.type == QNZoneInfoTypeBackup) {
-//            _currentZoneInfo = zoneInfo;
-            return YES;
+    QNBaseZoneInfo *zoneInfo = nil;
+    for (QNBaseZoneInfo *info in _zonesInfo) {
+        if (info.type == type) {
+            zoneInfo = info;
             break;
         }
     }
-    return NO;
+    return zoneInfo;
+}
+
+- (BOOL)hasBackupZone {
+    return _zonesInfo.count > 1;
 }
 
 @end
@@ -221,7 +224,7 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
         [zoneInfo.upDomainsDic setObject:[NSDate dateWithTimeIntervalSince1970:0] forKey:upDomain];
     } else {
         
-        //reset all the up host frozen time when first time
+        //reset all the up host frozen time
         if (!lastUpHost) {
             for (NSString *domain in zoneInfo.upDomainsList) {
                 [zoneInfo.upDomainsDic setObject:[NSDate dateWithTimeIntervalSince1970:0] forKey:domain];
@@ -243,6 +246,7 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
 }
 
 - (NSString *)up:(QNUpToken *)token
+zoneInfoType:(QNZoneInfoType)zoneInfoType
          isHttps:(BOOL)isHttps
     frozenDomain:(NSString *)frozenDomain {
     return nil;
@@ -372,13 +376,14 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
 }
 
 - (NSString *)up:(QNUpToken *)token
+zoneInfoType:(QNZoneInfoType)zoneInfoType
          isHttps:(BOOL)isHttps
     frozenDomain:(NSString *)frozenDomain {
 
     if (self.zonesInfo == nil) {
         return nil;
     }
-    return [super upHost:self.zonesInfo.currentZoneInfo isHttps:isHttps lastUpHost:frozenDomain];
+    return [super upHost:[self.zonesInfo getZoneInfoWithType:QNZoneInfoTypeMain] isHttps:isHttps lastUpHost:frozenDomain];
 }
 
 @end
@@ -401,6 +406,7 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
 }
 
 - (NSString *)up:(QNUpToken *)token
+    zoneInfoType:(QNZoneInfoType)zoneInfoType
          isHttps:(BOOL)isHttps
     frozenDomain:(NSString *)frozenDomain {
     NSString *index = [token index];
@@ -410,7 +416,7 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
     if (zonesInfo == nil) {
         return nil;
     }
-    return  [self upHost:zonesInfo.currentZoneInfo isHttps:isHttps lastUpHost:frozenDomain];
+    return  [self upHost:[zonesInfo getZoneInfoWithType:zoneInfoType] isHttps:isHttps lastUpHost:frozenDomain];
 }
 
 - (QNZonesInfo *)getZonesInfoWithToken:(QNUpToken *)token {
@@ -443,9 +449,9 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
             if (info == nil) {
                 ret(kQNInvalidToken);
             } else {
-                [lock lock];
-                [cache setValue:zonesInfo forKey:[token index]];
-                [lock unlock];
+                [self->lock lock];
+                [self->cache setValue:zonesInfo forKey:[token index]];
+                [self->lock unlock];
                 ret(0);
             }
         } else {

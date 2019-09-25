@@ -28,7 +28,7 @@
 @property (nonatomic, strong) QNConfiguration *config;
 @property (nonatomic, strong) NSString *fileName;
 @property (nonatomic) float previousPercent;
-
+@property (nonatomic, assign) QNZoneInfoType currentZoneType;
 @property (nonatomic, strong) NSString *access; //AK
 
 @end
@@ -54,6 +54,7 @@
         _fileName = fileName != nil ? fileName : @"?";
         _previousPercent = 0;
         _access = token.access;
+        _currentZoneType = QNZoneInfoTypeMain;
     }
     return self;
 }
@@ -67,7 +68,7 @@
     [parameters addEntriesFromDictionary:_option.params];
     parameters[@"crc32"] = [NSString stringWithFormat:@"%u", (unsigned int)[QNCrc32 data:_data]];
     
-    [self nextTask:0 needDelay:NO host:[_config.zone up:_token isHttps:_config.useHttps frozenDomain:nil] param:parameters];
+    [self nextTask:0 needDelay:NO host:[_config.zone up:_token zoneInfoType:_currentZoneType isHttps:_config.useHttps frozenDomain:nil] param:parameters];
 }
 
 - (void)nextTask:(int)retried needDelay:(BOOL)isNeedDelay host:(NSString *)host param:(NSDictionary *)param {
@@ -87,42 +88,43 @@
         if (percent > 0.95) {
             percent = 0.95;
         }
-        if (percent > _previousPercent) {
-            _previousPercent = percent;
+        if (percent > self.previousPercent) {
+            self.previousPercent = percent;
         } else {
-            percent = _previousPercent;
+            percent = self.previousPercent;
         }
-        _option.progressHandler(_key, percent);
+        self.option.progressHandler(self.key, percent);
     };
     QNCompleteBlock complete = ^(QNResponseInfo *info, NSDictionary *resp) {
         if (info.isOK) {
-            _option.progressHandler(_key, 1.0);
+            self.option.progressHandler(self.key, 1.0);
         }
         if (info.isOK || !info.couldRetry) {
-            _complete(info, _key, resp);
+            self.complete(info, self.key, resp);
             return;
         }
-        if (_option.cancellationSignal()) {
-            _complete([QNResponseInfo cancel], _key, nil);
+        if (self.option.cancellationSignal()) {
+            self.complete([QNResponseInfo cancel], self.key, nil);
             return;
         }
-        if (retried < _config.retryMax) {
+        if (retried < self.config.retryMax) {
             [self nextTask:retried + 1 needDelay:YES host:host param:param];
         } else {
-            if (_config.allowBackupHost) {
-                NSString *nextHost = [_config.zone up:_token isHttps:_config.useHttps frozenDomain:host];
+            if (self.config.allowBackupHost) {
+                NSString *nextHost = [self.config.zone up:self.token zoneInfoType:self.currentZoneType isHttps:self.config.useHttps frozenDomain:host];
                 if (nextHost) {
                     [self nextTask:0 needDelay:YES host:nextHost param:param];
                 } else {
-                    QNZonesInfo *zonesInfo = [_config.zone getZonesInfoWithToken:_token];
-                    if ([zonesInfo checkoutBackupZone]) {
-                        [self nextTask:0 needDelay:YES host:[_config.zone up:_token isHttps:_config.useHttps frozenDomain:nil] param:param];
+                    QNZonesInfo *zonesInfo = [self.config.zone getZonesInfoWithToken:self.token];
+                    if (self.currentZoneType == QNZoneInfoTypeMain && zonesInfo.hasBackupZone) {
+                        self.currentZoneType = QNZoneInfoTypeBackup;
+                        [self nextTask:0 needDelay:YES host:[self.config.zone up:self.token zoneInfoType:self.currentZoneType isHttps:self.config.useHttps frozenDomain:nil] param:param];
                     } else {
-                        _complete(info, _key, resp);
+                        self.complete(info, self.key, resp);
                     }
                 }
             } else {
-                _complete(info, _key, resp);
+                self.complete(info, self.key, resp);
             }
         }
     };

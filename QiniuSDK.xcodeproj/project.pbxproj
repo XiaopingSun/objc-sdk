@@ -278,6 +278,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		CCB5BB0E233B4C42009388A5 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				DF293C9019DB85CB00799011 /* libz.dylib */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		DF293C9B19DBC2AE00799011 /* Http */ = {
 			isa = PBXGroup;
 			children = (
@@ -300,6 +308,7 @@
 				DF2CDE0019DAC05500CE01FB /* Products */,
 				A955AABD20BF51BFE5032419 /* Frameworks */,
 				15E6E080F2F167B7B3D5F460 /* Pods */,
+				CCB5BB0E233B4C42009388A5 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -551,10 +560,11 @@
 			};
 			buildConfigurationList = DF2CDDFA19DAC05500CE01FB /* Build configuration list for PBXProject "QiniuSDK" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = DF2CDDF619DAC05500CE01FB;
 			productRefGroup = DF2CDE0019DAC05500CE01FB /* Products */;

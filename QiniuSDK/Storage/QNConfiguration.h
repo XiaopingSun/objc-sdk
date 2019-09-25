@@ -103,7 +103,7 @@ typedef NS_ENUM(NSUInteger, QNZoneInfoType) {
 
 @property (readonly, nonatomic) NSArray<QNBaseZoneInfo *> *zonesInfo;
 
-- (BOOL)checkoutBackupZone;
+@property (readonly, nonatomic) BOOL hasBackupZone;
 
 @end
 
@@ -118,6 +118,7 @@ typedef NS_ENUM(NSUInteger, QNZoneInfoType) {
 - (QNZonesInfo *)getZonesInfoWithToken:(QNUpToken *)token;
 
 - (NSString *)up:(QNUpToken *)token
+zoneInfoType:(QNZoneInfoType)zoneInfoType
          isHttps:(BOOL)isHttps
     frozenDomain:(NSString *)frozenDomain;
 
@@ -233,7 +234,6 @@ typedef NS_ENUM(NSUInteger, QNZoneInfoType) {
 @property (nonatomic, strong) NSDictionary *proxy;
 
 @property (nonatomic, strong) QNUrlConvert converter;
-
 
 @property (assign) BOOL disableATS;
 

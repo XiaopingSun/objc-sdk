@@ -7,18 +7,17 @@
 //
 
 #import "QNPHAssetFile.h"
-
-#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000)
 #import <AVFoundation/AVFoundation.h>
 #import <Photos/Photos.h>
-
 #import "QNResponseInfo.h"
+
+API_AVAILABLE_BEGIN(macos(10.13), ios(9.1), tvos(10))
 
 @interface QNPHAssetFile ()
 
 @property (nonatomic) PHAsset *phAsset;
 
-@property (readonly) int64_t fileSize;
+@property (nonatomic) int64_t fileSize;
 
 @property (readonly) int64_t fileModifyTime;
 
@@ -127,10 +126,10 @@
         [[PHImageManager defaultManager] requestImageDataForAsset:self.phAsset
                                                           options:options
                                                     resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                                                        _assetData = imageData;
-                                                        _fileSize = imageData.length;
-                                                        _assetURL = [NSURL URLWithString:self.phAsset.localIdentifier];
-                                                        filePath = _assetURL.path;
+                                                        self.assetData = imageData;
+                                                        self.fileSize = imageData.length;
+                                                        self.assetURL = [NSURL URLWithString:self.phAsset.localIdentifier];
+                                                        filePath = self.assetURL.path;
                                                     }];
     } else if (PHAssetMediaTypeVideo == self.phAsset.mediaType) {
         NSArray *assetResources = [PHAssetResource assetResourcesForAsset:self.phAsset];
@@ -162,4 +161,5 @@
 }
 
 @end
-#endif
+
+API_AVAILABLE_END
