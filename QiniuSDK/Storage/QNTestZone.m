@@ -71,6 +71,7 @@
                                      @"src": @{
                                              @"backup": @[
                                                      @"2.up.src.backup1",
+//                                                     @"up-z0.qiniup.com",
                                                      @"2.up.src.backup2"
                                                      ],
                                              @"main": @[@"2.up.src.main"]

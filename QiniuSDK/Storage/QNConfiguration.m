@@ -445,7 +445,8 @@ zoneInfoType:(QNZoneInfoType)zoneInfoType
     [sesionManager get:url withHeaders:nil withCompleteBlock:^(QNResponseInfo *info, NSDictionary *resp) {
         if (!info.error) {
         
-            QNZonesInfo *zonesInfo = [QNZonesInfo buildZonesInfoWithResp:[QNTestZone getTestResponse]];
+//            QNZonesInfo *zonesInfo = [QNZonesInfo buildZonesInfoWithResp:[QNTestZone getTestResponse]];
+            QNZonesInfo *zonesInfo = [QNZonesInfo buildZonesInfoWithResp:resp];
             if (info == nil) {
                 ret(kQNInvalidToken);
             } else {

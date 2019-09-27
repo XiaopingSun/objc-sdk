@@ -72,6 +72,7 @@
 }
 
 - (void)nextTask:(int)retried needDelay:(BOOL)isNeedDelay host:(NSString *)host param:(NSDictionary *)param {
+    
     if (isNeedDelay) {
         QNAsyncRunAfter(_config.retryInterval, ^{
             [self nextTask:retried host:host param:param];
@@ -82,6 +83,8 @@
 }
 
 - (void)nextTask:(int)retried host:(NSString *)host param:(NSDictionary *)param {
+    
+    NSLog(@"use host: %@", host);
 
     QNInternalProgressBlock p = ^(long long totalBytesWritten, long long totalBytesExpectedToWrite) {
         float percent = (float)totalBytesWritten / (float)totalBytesExpectedToWrite;

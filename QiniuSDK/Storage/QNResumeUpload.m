@@ -177,6 +177,7 @@
                             QNZonesInfo *zonesInfo = [self.config.zone getZonesInfoWithToken:self.token];
                             if (self.currentZoneType == QNZoneInfoTypeMain && zonesInfo.hasBackupZone) {
                                 self.currentZoneType = QNZoneInfoTypeBackup;
+                                [self removeRecord];
                                 [self nextTask:0 needDelay:YES retriedTimes:0 host:[self.config.zone up:self.token zoneInfoType:self.currentZoneType isHttps:self.config.useHttps frozenDomain:nil]];
                             } else {
                                 self.complete(info, self.key, resp);
@@ -220,6 +221,7 @@
                             QNZonesInfo *zonesInfo = [self.config.zone getZonesInfoWithToken:self.token];
                             if (self.currentZoneType == QNZoneInfoTypeMain && zonesInfo.hasBackupZone) {
                                 self.currentZoneType = QNZoneInfoTypeBackup;
+                                [self removeRecord];
                                 [self nextTask:0 needDelay:YES retriedTimes:0 host:[self.config.zone up:self.token zoneInfoType:self.currentZoneType isHttps:self.config.useHttps frozenDomain:nil]];
                             } else {
                                 self.complete(info, self.key, resp);
@@ -300,6 +302,7 @@
 
 - (void)makeFile:(NSString *)uphost
         complete:(QNCompleteBlock)complete {
+    
     NSString *mime = [[NSString alloc] initWithFormat:@"/mimeType/%@", [QNUrlSafeBase64 encodeString:self.option.mimeType]];
 
     __block NSString *url = [[NSString alloc] initWithFormat:@"%@/mkfile/%u%@", uphost, (unsigned int)self.size, mime];
