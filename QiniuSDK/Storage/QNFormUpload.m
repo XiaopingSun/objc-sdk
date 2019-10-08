@@ -84,8 +84,6 @@
 
 - (void)nextTask:(int)retried host:(NSString *)host param:(NSDictionary *)param {
     
-    NSLog(@"use host: %@", host);
-
     QNInternalProgressBlock p = ^(long long totalBytesWritten, long long totalBytesExpectedToWrite) {
         float percent = (float)totalBytesWritten / (float)totalBytesExpectedToWrite;
         if (percent > 0.95) {

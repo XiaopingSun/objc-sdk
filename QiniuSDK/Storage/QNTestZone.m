@@ -26,7 +26,8 @@
                                                    @"1.up.acc.backup1",
                                                    @"1.up.acc.backup2"
                                                    ],
-                                           @"main": @[@"1.up.acc.main"]
+                                           @"main": @[@"1.up.acc.main",
+                                           @"up-z0.qiniup.com"]
                                            },
                                    @"old_acc": @{
                                            @"info": @"compatible to non-SNI device",
@@ -58,7 +59,8 @@
                                                      @"2.up.acc.backup1",
                                                      @"2.up.acc.backup2"
                                                      ],
-                                             @"main": @[@"2.up.acc.main"]
+                                             @"main": @[@"2.up.acc.main",
+                                                        @"up-z2.qiniup.com"]
                                              },
                                      @"old_acc": @{
                                              @"info": @"compatible to non-SNI device",
@@ -71,7 +73,7 @@
                                      @"src": @{
                                              @"backup": @[
                                                      @"2.up.src.backup1",
-//                                                     @"up-z0.qiniup.com",
+                                                     
                                                      @"2.up.src.backup2"
                                                      ],
                                              @"main": @[@"2.up.src.main"]

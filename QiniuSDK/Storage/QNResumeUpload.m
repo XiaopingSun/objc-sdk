@@ -26,6 +26,7 @@
 @property (nonatomic, strong) QNUploadOption *option;
 @property (nonatomic, strong) QNUpToken *token;
 @property (nonatomic, strong) QNUpCompletionHandler complete;
+@property (nonatomic, strong) NSMutableDictionary *recordInfo;
 @property (nonatomic, strong) NSMutableArray *contexts;
 @property (nonatomic, assign) QNZoneInfoType currentZoneType;
 @property (nonatomic, strong) id<QNRecorderDelegate> recorder;
@@ -69,6 +70,7 @@
         _token = token;
         _previousPercent = 0;
         _access = token.access;
+        _recordInfo = [NSMutableDictionary dictionary];
     }
     return self;
 }
@@ -82,9 +84,11 @@
     NSNumber *n_offset = @(offset);
     NSNumber *n_time = [NSNumber numberWithLongLong:_modifyTime];
     NSMutableDictionary *rec = [NSMutableDictionary dictionaryWithObjectsAndKeys:n_size, @"size", n_offset, @"offset", n_time, @"modify_time", _contexts, @"contexts", nil];
+    NSString *currentKey = _currentZoneType == QNZoneInfoTypeMain ? @"main" : @"backup";
+    _recordInfo[currentKey] = rec;
 
     NSError *error;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:rec options:NSJSONWritingPrettyPrinted error:&error];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:_recordInfo options:NSJSONWritingPrettyPrinted error:&error];
     if (error != nil) {
         NSLog(@"up record json error %@ %@", key, error);
         return;
@@ -99,6 +103,8 @@
     if (_recorder == nil) {
         return;
     }
+    [_recordInfo removeAllObjects];
+    [_contexts removeAllObjects];
     [_recorder del:self.recorderKey];
 }
 
@@ -120,24 +126,26 @@
         [_recorder del:self.key];
         return 0;
     }
-    NSNumber *n_offset = info[@"offset"];
-    NSNumber *n_size = info[@"size"];
-    NSNumber *time = info[@"modify_time"];
-    NSArray *contexts = info[@"contexts"];
-    if (n_offset == nil || n_size == nil || time == nil || contexts == nil) {
+    
+    NSString *currentKey = _currentZoneType == QNZoneInfoTypeMain ? @"main": @"backup";
+    NSDictionary *currentInfo = info[currentKey];
+    NSNumber *n_offset = currentInfo[@"offset"];
+    NSNumber *n_size = currentInfo[@"size"];
+    NSNumber *time = currentInfo[@"modify_time"];
+    NSArray *contexts = currentInfo[@"contexts"];
+    
+    UInt32 offset = [n_offset unsignedIntValue];
+    UInt32 size = [n_size unsignedIntValue];
+    UInt64 t = [time unsignedLongLongValue];
+    
+    [_recordInfo setDictionary:info];
+    
+    if (n_offset == nil || n_size == nil || time == nil || contexts == nil || offset > size || size != self.size || t != _modifyTime) {
+        [_recordInfo removeObjectForKey:currentKey];
+        [_contexts removeAllObjects];
         return 0;
     }
 
-    UInt32 offset = [n_offset unsignedIntValue];
-    UInt32 size = [n_size unsignedIntValue];
-    if (offset > size || size != self.size) {
-        return 0;
-    }
-    UInt64 t = [time unsignedLongLongValue];
-    if (t != _modifyTime) {
-        NSLog(@"modify time changed %llu, %llu", t, _modifyTime);
-        return 0;
-    }
     _contexts = [[NSMutableArray alloc] initWithArray:contexts copyItems:true];
     return offset;
 }
@@ -153,7 +161,7 @@
 }
 
 - (void)nextTask:(UInt32)offset retriedTimes:(int)retried host:(NSString *)host {
-    NSLog(@"use host: %@", host);
+
     if (self.option.cancellationSignal()) {
         self.complete([QNResponseInfo cancel], self.key, nil);
         return;
@@ -177,8 +185,8 @@
                             QNZonesInfo *zonesInfo = [self.config.zone getZonesInfoWithToken:self.token];
                             if (self.currentZoneType == QNZoneInfoTypeMain && zonesInfo.hasBackupZone) {
                                 self.currentZoneType = QNZoneInfoTypeBackup;
-                                [self removeRecord];
-                                [self nextTask:0 needDelay:YES retriedTimes:0 host:[self.config.zone up:self.token zoneInfoType:self.currentZoneType isHttps:self.config.useHttps frozenDomain:nil]];
+                                self.previousPercent = 0;
+                                [self run];
                             } else {
                                 self.complete(info, self.key, resp);
                             }
@@ -187,6 +195,8 @@
                         self.complete(info, self.key, resp);
                     }
                 }
+            } else {
+                self.complete(info, self.key, resp);
             }
         };
         [self makeFile:host complete:completionHandler];
@@ -221,8 +231,8 @@
                             QNZonesInfo *zonesInfo = [self.config.zone getZonesInfoWithToken:self.token];
                             if (self.currentZoneType == QNZoneInfoTypeMain && zonesInfo.hasBackupZone) {
                                 self.currentZoneType = QNZoneInfoTypeBackup;
-                                [self removeRecord];
-                                [self nextTask:0 needDelay:YES retriedTimes:0 host:[self.config.zone up:self.token zoneInfoType:self.currentZoneType isHttps:self.config.useHttps frozenDomain:nil]];
+                                self.previousPercent = 0;
+                                [self run];
                             } else {
                                 self.complete(info, self.key, resp);
                             }
