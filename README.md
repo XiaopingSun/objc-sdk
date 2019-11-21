@@ -1,4 +1,4 @@
-# Qiniu Resource Storage SDK for Objective-C
+swwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww8qww77777777777777777777\\\4rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr--00333333AZZswwdoaa76q32p[i8u4jkl/.k/.kol˚k8/# Qiniu Resource Storage SDK for Objective-C
 
 [![@qiniu on weibo](http://img.shields.io/badge/weibo-%40qiniutek-blue.svg)](http://weibo.com/qiniutek)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE.md)
@@ -13,14 +13,14 @@
 通过 CocoaPods
 
 ```ruby
-pod "Qiniu", "~> 7.2" 
+pod "Qiniu", "~> 7.3" 
 ```
 
 ## 运行环境
 
 |               Qiniu SDK 版本               | 最低 iOS版本 | 最低 OS X 版本 |     Notes     |
 | :--------------------------------------: | :------: | :--------: | :-----------: |
-|                  7.2.x                   |  iOS 7   | OS X 10.9  | Xcode 最低版本 6. |
+|                  7.3.x                   |  iOS 7   | OS X 10.9  | Xcode 最低版本 6. |
 |         7.1.x / AFNetworking-3.x         |  iOS 7   | OS X 10.9  | Xcode 最低版本 6. |
 | [7.0.x / AFNetworking-2.x](https://github.com/qiniu/objc-sdk/tree/7.0.x/AFNetworking-2.x) |  iOS 6   | OS X 10.8  | Xcode 最低版本 5. |
 | [7.x / AFNetworking-1.x](https://github.com/qiniu/objc-sdk/tree/AFNetworking-1.x) |  iOS 5   | OS X 10.7  | Xcode 最低版本 5. |
@@ -48,7 +48,7 @@ pod "Qiniu", "~> 7.2"
 #import <QiniuSDK.h>
 ...
     QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
-        builder.useHttps = NO;// 是否使用https
+        builder.useHttps = YES;// 是否使用https
         builder.zone = [QNFixedZone zone0];// 指定华东区域
         // builder.zone = [QNFixedZone zone1];// 指定华北区域
         // builder.zone = [QNFixedZone zone2];// 指定华南区域
