@@ -13,6 +13,7 @@ Pod::Spec.new do |s|
   s.source_files = "QiniuSDK/**/*.{h,m}"
   s.requires_arc = true
   s.libraries = 'z'
+  s.dependency 'Cronet', '~> 80.0.3965.0-dev'
   s.license = { :type => "MIT", :text => <<-LICENSE
 The MIT License (MIT)
 

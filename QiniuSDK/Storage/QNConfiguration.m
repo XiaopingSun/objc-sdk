@@ -12,6 +12,7 @@
 #import "QNSystem.h"
 #import "QNUpToken.h"
 #import "QNUploadInfoReporter.h"
+#import <Cronet/Cronet.h>
 
 const UInt32 kQNBlockSize = 4 * 1024 * 1024;
 
@@ -20,6 +21,21 @@ const UInt32 kQNBlockSize = 4 * 1024 * 1024;
 
 + (instancetype)build:(QNConfigurationBuilderBlock)block {
     QNConfigurationBuilder *builder = [[QNConfigurationBuilder alloc] init];
+    
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [Cronet setHttp2Enabled:NO];
+            [Cronet setQuicEnabled:YES];
+            [Cronet setHttpCacheType:CRNHttpCacheTypeDisabled];
+            [Cronet addQuicHint:@"upload.qiniup.com" port:443 altPort:443];
+            [Cronet setMetricsEnabled:YES];
+            [Cronet setBrotliEnabled:YES];
+            [Cronet enableTestCertVerifierForTesting];
+            [Cronet start];
+            [Cronet registerHttpProtocolHandler];
+            [Cronet setHostResolverRulesForTesting:@"MAP upload.qiniup.com 100.100.56.99:443"];
+        });
+
     block(builder);
     return [[QNConfiguration alloc] initWithBuilder:builder];
 }

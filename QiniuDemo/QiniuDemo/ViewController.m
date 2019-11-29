@@ -28,22 +28,27 @@
 }
 
 - (IBAction)uploadAction:(id)sender {
-    if (self.pickImage == nil) {
-        UIAlertView *alert = [[UIAlertView alloc]
-                initWithTitle:@"还未选择图片"
-                      message:@""
-                     delegate:nil
-            cancelButtonTitle:@"OK!"
-            otherButtonTitles:nil];
-        [alert show];
-    } else {
-        [self uploadImageToQNFilePath:[self getImagePath:self.pickImage]];
-    }
+//    if (self.pickImage == nil) {
+//        UIAlertView *alert = [[UIAlertView alloc]
+//                initWithTitle:@"还未选择图片"
+//                      message:@""
+//                     delegate:nil
+//            cancelButtonTitle:@"OK!"
+//            otherButtonTitles:nil];
+//        [alert show];
+//    } else {
+//        [self uploadImageToQNFilePath:[self getImagePath:self.pickImage]];
+//    }
+    
+    [self uploadImageToQNFilePath:[[NSBundle mainBundle] pathForResource:@"20191114144441130merge" ofType:@"mp4"]];
 }
 
 - (void)uploadImageToQNFilePath:(NSString *)filePath {
-    self.token = @"你的token";
-    QNUploadManager *upManager = [[QNUploadManager alloc] init];
+    self.token = @"Oh5V7tcC3YiXDpQaXf6GMn_dIOVzQBnW9j4UZePS:hcOS01UIMzciMjro3LgvQMIyNKs=:eyJzY29wZSI6InB1cnN1ZS16MCIsImRlYWRsaW5lIjoxNTc1MDgwNTMyfQo=";
+    QNConfiguration *config = [QNConfiguration build:^(QNConfigurationBuilder *builder) {
+        builder.zone = [[QNFixedZone alloc] initWithupDomainList:@[@"upload.qiniup.com"]];
+    }];
+    QNUploadManager *upManager = [[QNUploadManager alloc] initWithConfiguration:config];
     QNUploadOption *uploadOption = [[QNUploadOption alloc] initWithMime:nil progressHandler:^(NSString *key, float percent) {
         NSLog(@"percent == %.2f", percent);
     }

@@ -12,6 +12,7 @@
 #import "QNSessionManager.h"
 #include "QNSystem.h"
 #import "QNUserAgent.h"
+#import <Cronet/Cronet.h>
 
 #if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000) || (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 1090)
 
@@ -178,7 +179,13 @@ static BOOL needRetry(NSHTTPURLResponse *httpResponse, NSError *error) {
     };
     __block QNProgessDelegate *delegate = [[QNProgessDelegate alloc] initWithProgress:nil];
     delegate.progressBlock = progressBlock2;
+    
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    
+#warning add cronet
+
+    [Cronet installIntoSessionConfiguration:configuration];
+
     if (_proxyDict) {
         configuration.connectionProxyDictionary = _proxyDict;
     }

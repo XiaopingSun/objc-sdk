@@ -4,17 +4,23 @@ def shared_dependencies
 #  pod 'HappyDNS', '>= 0.3'
 end
 
+def iOS_dependencies
+  pod 'Cronet', '~> 80.0.3965.0-dev'
+end
+
 def test_dependencies
   pod 'AGAsyncTestHelper/Shorthand'
 end
 
 target 'QiniuSDK_iOS' do
-  platform :ios, '7.0'
+  platform :ios, '9.0'
+  iOS_dependencies
   shared_dependencies
 end
 
 target 'QiniuSDK_iOSTests' do
-  platform :ios, '7.0'
+  platform :ios, '9.0'
+  iOS_dependencies
   shared_dependencies
   test_dependencies
 end
