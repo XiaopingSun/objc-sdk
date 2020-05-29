@@ -33,6 +33,7 @@ NSString *const local_io_error = @"local_io_error";
 
 // Network Error Type
 NSString *const unknown_error = @"unknown_error";
+NSString *const protocol_error = @"protocol_error";
 NSString *const network_error = @"network_error";
 NSString *const network_timeout = @"timeout";
 NSString *const unknown_host = @"unknown_host";

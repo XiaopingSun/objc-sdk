@@ -113,7 +113,9 @@
                 if (self.isProxyConnection) {
                     _errorType = proxy_error;
                 } else {
-                    if (error.code == -1 || error.code == -1009) {
+                    if (error.code == 100) {
+                        _errorType = protocol_error;
+                    } else if (error.code == -1 || error.code == -1009) {
                         _errorType = network_error;
                     } else if (error.code == -1001) {
                         _errorType = network_timeout;

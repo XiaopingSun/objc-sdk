@@ -52,6 +52,7 @@ extern NSString *const local_io_error; // 本地 I/O 错误
 
 /// Network Error Type
 extern NSString *const unknown_error;   // 未知错误
+extern NSString *const protocol_error;  // 协议错误
 extern NSString *const network_error; // 未知网络错误
 extern NSString *const network_timeout;   // 超时错误
 extern NSString *const unknown_host;    // DNS 解析错误
